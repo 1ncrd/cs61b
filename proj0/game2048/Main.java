@@ -18,6 +18,7 @@ public class Main {
      *  (random seed); --log (record moves and random tiles
      *  selected.). */
     public static void main(String... args) {
+        System.setProperty("user.language", "en");
         CommandArgs options =
             new CommandArgs("--seed=(\\d+) --log=(.+)",
                             args);

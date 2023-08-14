@@ -1,0 +1,12 @@
+{
+    "java.project.referencedLibraries": {
+        "include": [
+            "lib/**/*.jar",
+            "javalib/*.jar"
+        ],
+    },
+    "java.project.outputPath": "classfile",
+    "java.project.sourcePaths": [
+        "."
+    ]
+}

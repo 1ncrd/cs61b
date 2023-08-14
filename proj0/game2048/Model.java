@@ -5,7 +5,7 @@ import java.util.Observable;
 
 
 /** The state of a game of 2048.
- *  @author TODO: YOUR NAME HERE
+ *  @author 1ncrd
  */
 public class Model extends Observable {
     /** Current contents of the board. */
@@ -14,7 +14,7 @@ public class Model extends Observable {
     private int score;
     /** Maximum score so far.  Updated when game ends. */
     private int maxScore;
-    /** True iff game is ended. */
+    /** True if game is ended. */
     private boolean gameOver;
 
     /* Coordinate System: column C, row R of the board (where row 0,
@@ -114,6 +114,108 @@ public class Model extends Observable {
         // for the tilt to the Side SIDE. If the board changed, set the
         // changed local variable to true.
 
+        switch (side) {
+            case NORTH -> {
+                for (int col = 0; col < board.size(); col += 1) {
+                    int mergePos = board.size();
+                    for (int row = board.size() - 2; row >= 0; row--) {
+                        if (board.tile(col, row) == null) {
+                            continue;
+                        }
+                        int cur = row;
+                        for (int back = row + 1; back < mergePos; back++) {
+                            if (board.tile(col, back) == null || board.tile(col, back).value() == board.tile(col, cur).value()) {
+                                changed = true;
+                                boolean isMerge = board.move(col, back, board.tile(col, cur));
+                                cur = back;
+                                if (isMerge) {
+                                    mergePos = back;
+                                    score += board.tile(col, back).value();
+                                    break;
+                                }
+                            } else if (board.tile(col, back).value() != board.tile(col, cur).value()) {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            case SOUTH -> {
+                for (int col = 0; col < board.size(); col++) {
+                    int mergePos = -1;
+                    for (int row = 1; row < board.size(); row++) {
+                        if (board.tile(col, row) == null) {
+                            continue;
+                        }
+                        int cur = row;
+                        for (int back = row - 1; back > mergePos; back--) {
+                            if (board.tile(col, back) == null || board.tile(col, back).value() == board.tile(col, cur).value()) {
+                                changed = true;
+                                boolean isMerge = board.move(col, back, board.tile(col, cur));
+                                cur = back;
+                                if (isMerge) {
+                                    mergePos = back;
+                                    score += board.tile(col, back).value();
+                                    break;
+                                }
+                            } else if (board.tile(col, back).value() != board.tile(col, cur).value()) {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            case WEST -> {
+                for (int row = 0; row < board.size(); row++) {
+                    int mergePos = -1;
+                    for (int col = 1; col < board.size(); col++) {
+                        if (board.tile(col, row) == null) {
+                            continue;
+                        }
+                        int cur = col;
+                        for (int back = col - 1; back > mergePos; back--) {
+                            if (board.tile(back, row) == null || board.tile(back, row).value() == board.tile(cur, row).value()) {
+                                changed = true;
+                                boolean isMerge = board.move(back, row, board.tile(cur, row));
+                                cur = back;
+                                if (isMerge) {
+                                    mergePos = back;
+                                    score += board.tile(back, row).value();
+                                    break;
+                                }
+                            } else if (board.tile(back, row).value() != board.tile(cur, row).value()) {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            case EAST -> {
+                for (int row = 0; row < board.size(); row++) {
+                    int mergePos = board.size();
+                    for (int col = board.size() - 2; col >= 0; col--) {
+                        if (board.tile(col, row) == null) {
+                            continue;
+                        }
+                        int cur = col;
+                        for (int back = col + 1; back < mergePos; back++) {
+                            if (board.tile(back, row) == null || board.tile(back, row).value() == board.tile(cur, row).value()) {
+                                changed = true;
+                                boolean isMerge = board.move(back, row, board.tile(cur, row));
+                                cur = back;
+                                if (isMerge) {
+                                    mergePos = back;
+                                    score += board.tile(back, row).value();
+                                    break;
+                                }
+                            } else if (board.tile(back, row).value() != board.tile(cur, row).value()) {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
         checkGameOver();
         if (changed) {
             setChanged();
@@ -138,6 +240,11 @@ public class Model extends Observable {
      * */
     public static boolean emptySpaceExists(Board b) {
         // TODO: Fill in this function.
+        for (Tile tile : b) {
+            if (tile == null) {
+                return true;
+            }
+        }
         return false;
     }
 
@@ -148,6 +255,11 @@ public class Model extends Observable {
      */
     public static boolean maxTileExists(Board b) {
         // TODO: Fill in this function.
+        for (Tile tile : b) {
+            if (tile != null && tile.value() == MAX_PIECE) {
+                return true;
+            }
+        }
         return false;
     }
 
@@ -159,6 +271,24 @@ public class Model extends Observable {
      */
     public static boolean atLeastOneMoveExists(Board b) {
         // TODO: Fill in this function.
+        if (emptySpaceExists(b)) {
+            return true;
+        }
+        // if two adjacent tiles with the same value
+        for (int col = 0; col < b.size(); col += 1) {
+            for (int row = 0; row < b.size() - 1; row += 1) {
+                if (b.tile(col, row) != null && b.tile(col, row + 1) != null && b.tile(col, row).value() == b.tile(col, row + 1).value()) {
+                    return true;
+                }
+            }
+        }
+        for (int row = 0; row < b.size(); row += 1) {
+            for (int col = 0; col < b.size() - 1; col += 1) {
+                if (b.tile(col, row) != null && b.tile(col + 1, row) != null && b.tile(col, row).value() == b.tile(col + 1, row).value()) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
