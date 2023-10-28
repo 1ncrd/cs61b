@@ -1,6 +1,5 @@
 package deque;
 
-import java.util.Arrays;
 import java.util.Iterator;
 
 public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
@@ -93,6 +92,7 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
         T value = array[first];
         array[first] = null;
         first = inc(first, 1, capacity);
+        size--;
         return value;
     }
 
@@ -104,6 +104,7 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
         last = dec(last, 1, capacity);
         T value = array[last];
         array[last] = null;
+        size--;
         return value;
     }
 
