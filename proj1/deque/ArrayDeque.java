@@ -1,6 +1,9 @@
 package deque;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Objects;
 
 public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
     private T[] array;
@@ -8,19 +11,43 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
     private int capacity;
     private int first;
     private int last;
-    public static final int INITIAL_SIZE = 8;
-    public static final float USAGE_FACTOR = 0.25f;
-    public static final int SHRINK_FACTOR = 2;
+    private static final int INITIAL_SIZE = 8;
+    private static final float USAGE_FACTOR = 0.25f;
+    private static final int SHRINK_FACTOR = 2;
 
     public ArrayDeque() {
-        this(INITIAL_SIZE);
-    }
-    public ArrayDeque(int capacity) {
         this.size = 0;
-        this.capacity = capacity;
+        this.capacity = INITIAL_SIZE;
         this.first = 0;
         this.last = 0;
-        this.array = (T[]) new Object[capacity];
+        this.array = (T[]) new Object[INITIAL_SIZE];
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ArrayDeque<?> that = (ArrayDeque<?>) o;
+        if (this.size() != that.size()) {
+            return false;
+        }
+        var iter1 = this.iterator();
+        var iter2 = that.iterator();
+        while (iter1.hasNext() && iter2.hasNext()) {
+            var v1 = iter1.next();
+            var v2 = iter2.next();
+            if (!Objects.equals(v1, v2)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(size, capacity, first, last);
+        result = 31 * result + Arrays.hashCode(array);
+        return result;
     }
 
     private void increase(int newCapacity) {

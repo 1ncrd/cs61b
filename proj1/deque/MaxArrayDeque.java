@@ -3,14 +3,9 @@ package deque;
 import java.util.Comparator;
 
 public class MaxArrayDeque<T> extends ArrayDeque<T> {
-    Comparator<T> comparator;
+    private Comparator<T> comparator;
 
     public MaxArrayDeque(Comparator<T> comparator) {
-        this.comparator = comparator;
-    }
-
-    public MaxArrayDeque(int capacity, Comparator<T> comparator) {
-        super(capacity);
         this.comparator = comparator;
     }
 

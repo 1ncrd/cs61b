@@ -1,21 +1,22 @@
 package deque;
 
 import java.util.Iterator;
+import java.util.Objects;
 
 public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
     private static class ListNode<T> {
-        public T value;
-        public ListNode<T> prev;
-        public ListNode<T> next;
-        public ListNode() {
+        private T value;
+        private ListNode<T> prev;
+        private ListNode<T> next;
+        ListNode() {
             this(null, null, null);
         }
 
-        public ListNode(T value) {
+        ListNode(T value) {
             this(value, null, null);
         }
 
-        public ListNode(T value, ListNode<T> prev, ListNode<T> next) {
+        ListNode(T value, ListNode<T> prev, ListNode<T> next) {
             this.value = value;
             this.prev = prev;
             this.next = next;
@@ -28,6 +29,31 @@ public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
         sentinel = new ListNode<>(null);
         sentinel.prev = sentinel;
         sentinel.next = sentinel;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        LinkedListDeque<?> that = (LinkedListDeque<?>) o;
+        if (this.size() != that.size()) {
+            return false;
+        }
+        var iter1 = this.iterator();
+        var iter2 = that.iterator();
+        while (iter1.hasNext() && iter2.hasNext()) {
+            var v1 = iter1.next();
+            var v2 = iter2.next();
+            if (!Objects.equals(v1, v2)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(size, sentinel);
     }
 
     @Override
@@ -122,7 +148,7 @@ public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
         LinkedListDeque<T> linkedListDeque;
         ListNode<T> current;
 
-        public LinkedListDequeIterator(LinkedListDeque<T> linkedListDeque) {
+        LinkedListDequeIterator(LinkedListDeque<T> linkedListDeque) {
             this.linkedListDeque = linkedListDeque;
             this.current = linkedListDeque.sentinel.next;
         }
