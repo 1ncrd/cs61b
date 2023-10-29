@@ -71,4 +71,20 @@ public class ArrayDequeTest {
             assertEquals(expected[i], arrayDeque.get(i).intValue());
         }
     }
+    @Test
+    /* Add large number of elements to deque; check if order is correct. */
+    public void bigArrayDequeTest() {
+        ArrayDeque<Integer> arrayDeque = new ArrayDeque<>();
+        for (int i = 0; i < 1000000; i++) {
+            arrayDeque.addLast(i);
+        }
+
+        for (double i = 0; i < 500000; i++) {
+            assertEquals("Should have the same value", i, (double) arrayDeque.removeFirst(), 0.0);
+        }
+
+        for (double i = 999999; i > 500000; i--) {
+            assertEquals("Should have the same value", i, (double) arrayDeque.removeLast(), 0.0);
+        }
+    }
 }

@@ -9,6 +9,8 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
     private int first;
     private int last;
     public static final int INITIAL_SIZE = 8;
+    public static final float USAGE_FACTOR = 0.25f;
+    public static final int SHRINK_FACTOR = 2;
 
     public ArrayDeque() {
         this(INITIAL_SIZE);
@@ -24,6 +26,20 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
     private void increase(int newCapacity) {
         if (newCapacity <= capacity)  {
             throw new IllegalArgumentException("New capacity should be greater than old capacity");
+        }
+        copyToNewArray(newCapacity);
+    }
+
+    private void decrease(int newCapacity) {
+        if (newCapacity >= capacity)  {
+            throw new IllegalArgumentException("New capacity should be smaller than old capacity");
+        }
+        copyToNewArray(newCapacity);
+    }
+
+    private void copyToNewArray(int newCapacity) {
+        if (this.size > newCapacity) {
+            throw new IllegalArgumentException("New capacity should be greater than size");
         }
         T[] newArray = (T[]) new Object[newCapacity];
         if (last > first) {
@@ -67,11 +83,6 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
     }
 
     @Override
-    public boolean isEmpty() {
-        return size == 0;
-    }
-
-    @Override
     public int size() {
         return size;
     }
@@ -89,6 +100,9 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
         if (size <= 0) {
             return null;
         }
+        if (capacity >= 16 && (float) size / capacity < USAGE_FACTOR) {
+            decrease(capacity / SHRINK_FACTOR);
+        }
         T value = array[first];
         array[first] = null;
         first = inc(first, 1, capacity);
@@ -100,6 +114,9 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
     public T removeLast() {
         if (size <= 0) {
             return null;
+        }
+        if (capacity >= 16 && (float) size / capacity < USAGE_FACTOR) {
+            decrease(capacity / SHRINK_FACTOR);
         }
         last = dec(last, 1, capacity);
         T value = array[last];
