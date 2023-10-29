@@ -1,6 +1,5 @@
 package deque;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Objects;
@@ -25,8 +24,12 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         ArrayDeque<?> that = (ArrayDeque<?>) o;
         if (this.size() != that.size()) {
             return false;
@@ -41,13 +44,6 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
             }
         }
         return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = Objects.hash(size, capacity, first, last);
-        result = 31 * result + Arrays.hashCode(array);
-        return result;
     }
 
     private void increase(int newCapacity) {
@@ -169,7 +165,7 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
         ArrayDeque<T> arrayDeque;
         int current;
 
-        public ArrayDequeIterator(ArrayDeque<T> arrayDeque) {
+        ArrayDequeIterator(ArrayDeque<T> arrayDeque) {
             this.arrayDeque = arrayDeque;
             this.current = arrayDeque.first;
         }
