@@ -64,4 +64,5 @@ clean:
 
 sentinel: $(SRCS)
 	javac $(JFLAGS) -cp $(CPATH) $(SRCS)
+# touch sentinel
 	touch sentinel
