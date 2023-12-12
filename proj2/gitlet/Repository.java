@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.*;
 
 import static gitlet.Utils.*;
-import static gitlet.Utils.readContentsAsString;
 
 /**
  * Represents a gitlet repository.
@@ -187,6 +186,7 @@ public class Repository {
             HashMap<String, String> removeFileToID = getRemoveStage();
             File file = new File(filename);
             removeFileToID.put(filename, null);
+            writeObject(RM_STAGE, removeFileToID);
             if (file.isFile()) {
                 file.delete();
             }
