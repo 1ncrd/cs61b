@@ -107,16 +107,29 @@ public class Repository {
             return;
         }
 
-        /* Write file into objects folder. */
+        HashMap<String, String> removeFileToID = getRemoveStage();
+        if (removeFileToID.containsKey(filename)) {
+            removeFileToID.remove(filename);
+            writeContents(RM_STAGE, removeFileToID);
+            return;
+        }
+
         byte[] fileContent = readContents(addFile);
         String fileID = sha1((Object) fileContent);
+        /* Check if the file is tracked and unchanged. */
+        Commit curCommit = getHEADCommit();
+        if (Objects.equals(curCommit.getFileToID().get(filename), fileID)) {
+            return;
+        }
+
+        /* Write file into objects folder. */
         File blobFile = join(OBJECTS_DIR, fileID);
         writeContents(blobFile, (Object) fileContent);
 
         /* Record the file into addstage. */
-        HashMap<String, String> fileToId = getAddStage();
-        fileToId.put(filename, fileID);
-        writeObject(ADD_STAGE, fileToId);
+        HashMap<String, String> addFileToId = getAddStage();
+        addFileToId.put(filename, fileID);
+        writeObject(ADD_STAGE, addFileToId);
     }
 
     public static void commit(Commit commit) {
@@ -285,14 +298,7 @@ public class Repository {
      */
     public static void checkoutFile(String filename) {
         Commit curCommit = getHEADCommit();
-        Map<String, String> fileToID = curCommit.getFileToID();
-        if (!fileToID.containsKey(filename)) {
-            System.out.println("File does not exist in that commit.");
-            return;
-        }
-        String fileID = fileToID.get(filename);
-        byte[] contents = readContents(join(OBJECTS_DIR, fileID));
-        writeContents(join(CWD, filename), (Object) contents);
+        checkoutFile(curCommit.getID(), filename);
     }
 
     public static void checkoutFile(String commitID, String filename) {
@@ -300,6 +306,7 @@ public class Repository {
         Map<String, String> fileToID = commit.getFileToID();
         if (!fileToID.containsKey(filename)) {
             System.out.println("File does not exist in that commit.");
+            return;
         }
         String fileID = fileToID.get(filename);
         byte[] contents = readContents(join(OBJECTS_DIR, fileID));
