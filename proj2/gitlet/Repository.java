@@ -110,7 +110,7 @@ public class Repository {
         HashMap<String, String> removeFileToID = getRemoveStage();
         if (removeFileToID.containsKey(filename)) {
             removeFileToID.remove(filename);
-            writeContents(RM_STAGE, removeFileToID);
+            writeObject(RM_STAGE, removeFileToID);
             return;
         }
 
