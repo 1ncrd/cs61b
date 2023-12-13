@@ -398,7 +398,7 @@ public class Repository {
         if (getCurrentBranchName().equals(branchName)) {
             System.out.println("Cannot remove the current branch.");
         }
-        restrictedDelete(branchFile);
+        branchFile.delete();
     }
 
     public static void reset(String commitID) {
