@@ -69,7 +69,8 @@ public class Commit implements Serializable {
     }
 
     public String generateID() {
-        return Utils.sha1(this.message, this.timestamp, this.fileToID.toString(), this.parents.toString());
+        return Utils.sha1(this.message, this.timestamp,
+                this.fileToID.toString(), this.parents.toString());
     }
 
     public void genAndSetID() {
