@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.function.Consumer;
 
 /** Represents a gitlet commit object.
  *
@@ -22,7 +21,7 @@ public class Commit implements Serializable {
 
     private List<String> parents = new ArrayList<>();
 
-    private String ID;
+    private String id;
 
     public Commit(String message, Date date, HashMap<String, String> fileToID) {
         this.message = message;
@@ -47,22 +46,26 @@ public class Commit implements Serializable {
 
     @Override
     public String toString() {
-        return "commit " + this.getID() + "\n" +
-                "Date: " + this.getTimestamp() + "\n" +
-                this.getMessage();
+        return "commit " + this.getId() + "\n"
+                + "Date: " + this.getTimestamp() + "\n"
+                + this.getMessage();
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Commit commit = (Commit) o;
-        return Objects.equals(ID, commit.ID);
+        return Objects.equals(id, commit.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(ID);
+        return Objects.hash(id);
     }
 
     public String generateID() {
@@ -70,19 +73,19 @@ public class Commit implements Serializable {
     }
 
     public void genAndSetID() {
-        setID(generateID());
+        setId(generateID());
     }
 
     public void setMessage(String message) {
         this.message = message;
     }
 
-    public String getID() {
-        return ID;
+    public String getId() {
+        return id;
     }
 
-    public void setID(String ID) {
-        this.ID = ID;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public Map<String, String> getFileToID() {

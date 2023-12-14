@@ -51,7 +51,8 @@ public class Repository {
 
     public static void init() {
         if (isInit()) {
-            System.out.println("A Gitlet version-control system already exists in the current directory.");
+            System.out.println(
+                    "A Gitlet version-control system already exists in the current directory.");
             return;
         }
         GITLET_DIR.mkdirs();
@@ -133,7 +134,7 @@ public class Repository {
     }
 
     public static void commit(Commit commit) {
-        File commitFile = join(COMMITS_DIR, commit.getID());
+        File commitFile = join(COMMITS_DIR, commit.getId());
         writeObject(commitFile, commit);
         /* Update HEAD. */
         setHEAD(commit);
@@ -141,7 +142,7 @@ public class Repository {
     }
 
     private static void setCurrentBranchCommit(Commit commit) {
-        setCurrentBranchCommit(commit.getID());
+        setCurrentBranchCommit(commit.getId());
     }
 
     private static void setCurrentBranchCommit(String commitID) {
@@ -154,7 +155,7 @@ public class Repository {
     }
 
     private static void setHEAD(Commit commit) {
-        writeContents(HEAD, commit.getID());
+        writeContents(HEAD, commit.getId());
     }
 
     public static void commit(String message) {
@@ -177,7 +178,7 @@ public class Repository {
         /* Remove file recorded in removestage. */
         curCommit.getFileToID().keySet().removeAll(removeFileToID.keySet());
         /* Set parents to previous commits. */
-        curCommit.getParents().add(prevCommit.getID());
+        curCommit.getParents().add(prevCommit.getId());
         /* Set ID for the commit. */
         curCommit.genAndSetID();
 
@@ -259,7 +260,7 @@ public class Repository {
             Commit commit = getCommit(commitID);
             if (Objects.equals(commit.getMessage(), message)) {
                 found = true;
-                System.out.println(commit.getID());
+                System.out.println(commit.getId());
             }
         }
         if (!found) {
@@ -309,7 +310,7 @@ public class Repository {
      */
     public static void checkoutFile(String filename) {
         Commit curCommit = getHEADCommit();
-        checkoutFile(curCommit.getID(), filename);
+        checkoutFile(curCommit.getId(), filename);
     }
 
     public static void checkoutFile(String commitID, String filename) {
@@ -331,9 +332,9 @@ public class Repository {
             return;
         }
         Commit thatcommit = getBranchCommit(branchName);
-        checkoutCommit(thatcommit.getID());
+        checkoutCommit(thatcommit.getId());
         /* Change HEAD. */
-        setHEAD(thatcommit.getID());
+        setHEAD(thatcommit.getId());
         /* Toggle branch. */
         setCurrentBranch(branchName);
 
@@ -343,7 +344,8 @@ public class Repository {
     }
 
     /**
-     * Print "No commit with that id exists." and exit the program if the given commitID does not correspond a commit.
+     * Print "No commit with that id exists."
+     * and exit the program if the given commitID does not correspond a commit.
      *
      * @param commitID id of the commit.
      * @return the commit with the given commitID.
@@ -361,7 +363,26 @@ public class Repository {
      * @param commitID ID of the target commit to check out.
      */
     private static void checkoutCommit(String commitID) {
+        if (commitID.length() != 40) {
+            commitID = findCommitIDStartWith(commitID);
+        }
         checkoutCommit(getHEADCommitID(), commitID);
+    }
+
+    private static String findCommitIDStartWith(String prefix) {
+        List<String> commitIDList = plainFilenamesIn(COMMITS_DIR);
+        if (commitIDList == null) {
+            throw new GitletException("This abstract pathname does not denote a directory," +
+                    " or if an I/O error occurs.");
+        }
+        for (String commitID : commitIDList) {
+            if (commitID.startsWith(prefix)) {
+                return commitID;
+            }
+        }
+        System.out.println("No commit with that id exists.");
+        System.exit(0);
+        return null;
     }
 
 
@@ -372,13 +393,17 @@ public class Repository {
         Map<String, String> targetFileToID = targetCommit.getFileToID();
         List<String> filenames = plainFilenamesIn(CWD);
         if (filenames == null) {
-            throw new GitletException("This abstract pathname does not denote a directory, or if an I/O error occurs.");
+            throw new GitletException(
+                    "This abstract pathname does not denote a directory," +
+                            " or if an I/O error occurs.");
         }
         for (String filename : filenames) {
             String expectedID = sha1((Object) readContents(join(CWD, filename)));
             if (!Objects.equals(expectedID, curFileToID.get(filename))
                     && targetFileToID.containsKey(filename)) {
-                System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+                System.out.println(
+                        "There is an untracked file in the way;" +
+                                " delete it, or add and commit it first.");
                 System.exit(0);
             }
         }
@@ -463,13 +488,13 @@ public class Repository {
         Commit commonAncestor = getCommonAncestorCommit(currentCommit, givenCommit);
 
         /* If the split point is the given branch, fast-forward. */
-        if (commonAncestor.getID().equals(givenCommit.getID())) {
+        if (commonAncestor.getId().equals(givenCommit.getId())) {
             System.out.println("Given branch is an ancestor of the current branch.");
             return;
         }
 
         /* If the split point is the current branch, fast-forward. */
-        if (commonAncestor.getID().equals(currentCommit.getID())) {
+        if (commonAncestor.getId().equals(currentCommit.getId())) {
             checkoutBranch(branchName);
             System.out.println("Current branch fast-forwarded.");
             return;
@@ -488,19 +513,22 @@ public class Repository {
             String givenFileID = givenFileToID.get(filename);
             String currentFileID = currentFileToID.get(filename);
             String ancestorFileID = commonAncestorFileToID.get(filename);
-            if (Objects.equals(ancestorFileID, currentFileID) && !Objects.equals(ancestorFileID, givenFileID)) {
+            if (Objects.equals(ancestorFileID, currentFileID)
+                    && !Objects.equals(ancestorFileID, givenFileID)) {
                 if (givenFileID != null) {
                     addFileToID.put(filename, givenFileID);
                 } else {
                     removeFileToID.put(filename, currentFileID);
                 }
-            } else if (Objects.equals(ancestorFileID, givenFileID) && !Objects.equals(ancestorFileID, currentFileID)) {
+            } else if (Objects.equals(ancestorFileID, givenFileID)
+                    && !Objects.equals(ancestorFileID, currentFileID)) {
                 if (currentFileID != null) {
                     addFileToID.put(filename, currentFileID);
                 } else {
                     removeFileToID.put(filename, givenFileID);
                 }
-            } else if (!Objects.equals(ancestorFileID, currentFileID) && !Objects.equals(ancestorFileID, givenFileID)
+            } else if (!Objects.equals(ancestorFileID, currentFileID)
+                    && !Objects.equals(ancestorFileID, givenFileID)
                     && !Objects.equals(currentFileID, givenFileID)) {
                 conflict(filename, currentFileID, givenFileID);
                 addFileToID.put(filename, sha1((Object) readContents(join(CWD, filename))));
@@ -512,15 +540,17 @@ public class Repository {
         Commit newCommit = new Commit("", new Date());
         newCommit.getFileToID().putAll(addFileToID);
         newCommit.getFileToID().keySet().removeAll(removeFileToID.keySet());
-        newCommit.getParents().add(currentCommit.getID());
-        newCommit.getParents().add(givenCommit.getID());
+        newCommit.getParents().add(currentCommit.getId());
+        newCommit.getParents().add(givenCommit.getId());
         newCommit.setMessage("Merged " + branchName + " into " + getCurrentBranchName() + ".");
         newCommit.genAndSetID();
         commit(newCommit);
 
         List<String> filenames = plainFilenamesIn(CWD);
         if (filenames == null) {
-            throw new GitletException("This abstract pathname does not denote a directory, or if an I/O error occurs.");
+            throw new GitletException(
+                    "This abstract pathname does not denote a directory, " +
+                            "or if an I/O error occurs.");
         }
         for (String filename : filenames) {
             if (conflictFiles.contains(filename)) {
@@ -529,7 +559,9 @@ public class Repository {
             String expectedID = sha1((Object) readContents(join(CWD, filename)));
             if (!Objects.equals(expectedID, currentFileToID.get(filename))
                     && newCommit.getFileToID().containsKey(filename)) {
-                System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+                System.out.println(
+                        "There is an untracked file in the way; delete it," +
+                        " or add and commit it first.");
                 System.exit(0);
             }
         }
@@ -553,8 +585,10 @@ public class Repository {
     }
 
     private static void conflict(String filename, String currentBranchFileID, String givenBranchFileID) {
-        byte[] curFileContents = currentBranchFileID == null ? new byte[0] : getFileContentsWithID(currentBranchFileID);
-        byte[] givenFileContents = givenBranchFileID == null ? new byte[0] : getFileContentsWithID(givenBranchFileID);
+        byte[] curFileContents = currentBranchFileID == null ?
+                new byte[0] : getFileContentsWithID(currentBranchFileID);
+        byte[] givenFileContents = givenBranchFileID == null ?
+                new byte[0] : getFileContentsWithID(givenBranchFileID);
         File file = join(CWD, filename);
 
         writeContents(file,
@@ -572,10 +606,10 @@ public class Repository {
         HashSet<String> seen1 = new HashSet<>();
         HashSet<String> seen2 = new HashSet<>();
 
-        seen1.add(commit_1.getID());
-        seen2.add(commit_2.getID());
-        List<String> curIDList1 = Arrays.asList(commit_1.getID());
-        List<String> curIDList2 = Arrays.asList(commit_2.getID());
+        seen1.add(commit_1.getId());
+        seen2.add(commit_2.getId());
+        List<String> curIDList1 = Arrays.asList(commit_1.getId());
+        List<String> curIDList2 = Arrays.asList(commit_2.getId());
         while (!curIDList1.isEmpty() || !curIDList2.isEmpty()) {
             for (String ID : curIDList1) {
                 if (seen2.contains(ID)) {
