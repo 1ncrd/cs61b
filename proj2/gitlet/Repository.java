@@ -569,28 +569,42 @@ public class Repository {
 
 
     private static Commit getCommonAncestorCommit(Commit commit_1, Commit commit_2) {
-        HashSet<String> seen_1 = new HashSet<>();
-        HashSet<String> seen_2 = new HashSet<>();
+        HashSet<String> seen1 = new HashSet<>();
+        HashSet<String> seen2 = new HashSet<>();
 
-        seen_1.add(commit_1.getID());
-        seen_2.add(commit_2.getID());
-        while (!commit_1.getParents().isEmpty() || !commit_2.getParents().isEmpty()) {
-            if (seen_1.contains(commit_2.getID()) || seen_2.contains(commit_1.getID())) {
-                break;
+        seen1.add(commit_1.getID());
+        seen2.add(commit_2.getID());
+        List<String> curIDList1 = Arrays.asList(commit_1.getID());
+        List<String> curIDList2 = Arrays.asList(commit_2.getID());
+        while (!curIDList1.isEmpty() || !curIDList2.isEmpty()) {
+            for (String ID : curIDList1) {
+                if (seen2.contains(ID)) {
+                    return getCommit(ID);
+                }
             }
-            if (!commit_1.getParents().isEmpty()) {
-                String nextID_1 = commit_1.getParents().get(0);
-                commit_1 = getCommit(nextID_1);
-                seen_1.add(commit_1.getID());
+            for (String ID : curIDList2) {
+                if (seen1.contains(ID)) {
+                    return getCommit(ID);
+                }
+            }
+            List<String> nextIDList1 = new ArrayList<>();
+            List<String> nextIDList2 = new ArrayList<>();
+            for (String ID : curIDList1) {
+                Commit commit = getCommit(ID);
+                seen1.addAll(commit.getParents());
+                nextIDList1.addAll(commit.getParents());
+            }
+            for (String ID : curIDList2) {
+                Commit commit = getCommit(ID);
+                seen2.addAll(commit.getParents());
+                nextIDList2.addAll(commit.getParents());
             }
 
-            if (!commit_2.getParents().isEmpty()) {
-                String nextID_2 = commit_2.getParents().get(0);
-                commit_2 = getCommit(nextID_2);
-                seen_2.add(commit_2.getID());
-            }
+            curIDList1 = nextIDList1;
+            curIDList2 = nextIDList2;
         }
-        return seen_1.contains(commit_2.getID()) ? commit_1 : commit_2;
+
+        throw new RuntimeException("Common ancestor not found.");
     }
 
     private static HashMap<String, String> getRemoveStage() {
