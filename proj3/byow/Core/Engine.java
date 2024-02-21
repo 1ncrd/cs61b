@@ -53,7 +53,7 @@ public class Engine {
         TETile[][] finalWorldFrame = null;
         switch (option) {
             /* Create new world. */
-            case 'N' -> {
+            case 'N', 'n' -> {
                 long seed = Long.parseLong(input.substring(1, input.length() - 1));
                 finalWorldFrame = createWorld(seed);
             }
