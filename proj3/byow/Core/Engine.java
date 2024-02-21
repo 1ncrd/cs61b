@@ -50,16 +50,15 @@ public class Engine {
              that works for many different input types.
         */
         char option = input.charAt(0);
+        TETile[][] finalWorldFrame = null;
         switch (option) {
             /* Create new world. */
             case 'N' -> {
                 long seed = Long.parseLong(input.substring(1, input.length() - 1));
-                TETile[][] finalWorldFrame = createWorld(seed);
-                return finalWorldFrame;
+                finalWorldFrame = createWorld(seed);
             }
         }
 
-        TETile[][] finalWorldFrame = null;
         return finalWorldFrame;
     }
 
@@ -101,8 +100,8 @@ public class Engine {
     }
 
     private void createRoom(TETile[][] world, int x, int y) {
-        int width = RANDOM.nextInt(5, 9);
-        int height = RANDOM.nextInt(5, 9);
+        int width = randomInt(5, 9);
+        int height = randomInt(5, 9);
         for (int curX = x - width / 2; curX < x + (width + 1) / 2; curX++) {
             for (int curY = y - height / 2; curY < y + (height + 1) / 2; curY++) {
                 if (curX >= 1 && curX <= WIDTH - 2 && curY >= 1 && curY <= HEIGHT - 2) {
@@ -110,6 +109,10 @@ public class Engine {
                 }
             }
         }
+    }
+
+    private int randomInt(int origin, int bound) {
+        return RANDOM.nextInt(bound - origin) + origin;
     }
 
     private void buildWalls(TETile[][] world) {
@@ -145,7 +148,7 @@ public class Engine {
     private int[] randomWalk(TETile[][] world, int x, int y) {
         int[][] directions = new int[][] {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
         int[] direction = directions[RANDOM.nextInt(4)];
-        int length = RANDOM.nextInt(5, 20);
+        int length = randomInt(5, 20);
         int curX = x;
         int curY = y;
         for (int i = 0; i < length; i++) {
